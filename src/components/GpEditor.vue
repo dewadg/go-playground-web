@@ -16,6 +16,7 @@
     </div>
     <textarea
       id="gp-editor-target"
+      :disabled="disabled"
       @input="handleContentChange"
       @keydown.tab="handleTab"
       @scroll="handleTextareaScroll"
@@ -30,6 +31,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -83,7 +88,7 @@ function handleTextareaScroll () {
 .gp-editor {
   display: flex;
   overflow-y: hidden;
-  height: 720px;
+  height: 480px;
   border: 1px solid #eee;
   font-family: 'Roboto Mono', monospace;
   border-radius: 0.5rem;
@@ -112,6 +117,10 @@ function handleTextareaScroll () {
     border: 0;
     font-family: inherit;
     color: #111;
+
+    &:disabled {
+      background: #fff;
+    }
   }
 }
 </style>

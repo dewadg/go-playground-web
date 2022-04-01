@@ -3,16 +3,26 @@
     <div class="gp-playground-header">
       <h2 class="gp-playground-title">Go Playground</h2>
       <div class="gp-playground-controls">
-        <GpButton @click="handleRun">Run</GpButton>
+        <GpButton
+          :disabled="runLoading"
+          @click="handleRun"
+        >
+          Run
+        </GpButton>
       </div>
     </div>
-    <GpEditor v-model="code" />
-    <GpTerminal />
+    <GpEditor
+      v-model="code"
+      :disabled="runLoading"
+    />
+    <GpTerminal :result="executionResult" />
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import gql from 'graphql-tag'
+import { useMutation } from '@vue/apollo-composable'
 import GpEditor from './GpEditor.vue'
 import GpTerminal from './GpTerminal.vue'
 import GpButton from './GpButton.vue'
@@ -26,8 +36,50 @@ func main() {
 }
 `)
 
+const executionOutput = reactive([])
+
+const {
+  loading: runLoading,
+  error: runError,
+  mutate: runMutate,
+  onDone: runDone
+} = useMutation(gql`
+  mutation($input: [String!]!) {
+    execute(payload: {
+      input: $input
+    }) {
+      output
+    }
+  }
+`)
+
+runDone((result) => {
+  executionOutput.length = 0
+  executionOutput.push(...result.data.execute.output)
+})
+
+const executionResult = computed(_ => {
+  if (runLoading.value) {
+    return {
+      error: null,
+      loading: true,
+      output: []
+    }
+  }
+
+  const error = runError.value || null
+
+  return {
+    error,
+    loading: false,
+    output: executionOutput
+  }
+})
+
 function handleRun () {
-  console.log('Test')
+  runMutate({
+    input: code.value.split('\n')
+  })
 }
 </script>
 

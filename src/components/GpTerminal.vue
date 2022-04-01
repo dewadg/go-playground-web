@@ -1,11 +1,26 @@
 <template>
   <div class="gp-terminal">
-    <span>Press run to execute code</span>
-    <span>Execution error</span>
+    <span v-if="empty && !result.loading">Press run to execute code</span>
+    <span v-if="result.loading">Running your code...</span>
+    <span
+      v-for="item in result.output"
+    >
+      {{ item }}
+    </span>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  result: {
+    type: Object,
+    required: true
+  }
+})
+
+const empty = computed(_ => !props.result.error && props.result.output.length === 0)
 </script>
 
 <style lang="scss">
