@@ -1,0 +1,18 @@
+<script setup>
+import GpPlayground from './components/GpPlayground.vue'
+</script>
+
+<template>
+  <GpPlayground />
+</template>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Patrick Hand', sans-serif;
+  background: #fcfcfc;
+  color: #222;
+}
+</style>
