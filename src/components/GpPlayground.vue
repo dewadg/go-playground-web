@@ -4,7 +4,20 @@
       <h2 class="gp-playground-title">Go Playground</h2>
       <div class="gp-playground-controls">
         <GpButton
-          :disabled="runLoading"
+          v-if="shareLink.length === 0"
+          :disabled="loading"
+          @click="handleShare"
+          style="margin-right: 0.5rem;"
+        >
+          Share
+        </GpButton>
+        <GpShareable
+          v-else
+          :link="shareLink"
+          style="margin-right: 0.5rem;"
+        />
+        <GpButton
+          :disabled="loading"
           @click="handleRun"
         >
           Run
@@ -13,7 +26,7 @@
     </div>
     <GpEditor
       v-model="code"
-      :disabled="runLoading"
+      :disabled="loading"
     />
     <GpTerminal :result="executionResult" />
   </section>
@@ -26,6 +39,7 @@ import { useMutation } from '@vue/apollo-composable'
 import GpEditor from './GpEditor.vue'
 import GpTerminal from './GpTerminal.vue'
 import GpButton from './GpButton.vue'
+import GpShareable from './GpShareable.vue'
 
 const code = ref(`package main
 
@@ -37,6 +51,8 @@ func main() {
 `)
 
 const executionOutput = reactive([])
+
+const shareId = ref('')
 
 const {
   loading: runLoading,
@@ -53,10 +69,31 @@ const {
   }
 `)
 
+const {
+  loading: shareLoading,
+  error: shareError,
+  mutate: shareMutate,
+  onDone: shareDone
+} = useMutation(gql`
+  mutation($input: [String!]!) {
+    createItem(payload: {
+      input: $input
+    }) {
+      shareId
+    }
+  }
+`)
+
 runDone((result) => {
   executionOutput.length = 0
   executionOutput.push(...result.data.execute.output)
 })
+
+shareDone((result) => {
+  shareId.value = result.data.createItem.shareId
+})
+
+const loading = computed(_ => runLoading.value || shareLoading.value)
 
 const executionResult = computed(_ => {
   if (runLoading.value) {
@@ -76,8 +113,19 @@ const executionResult = computed(_ => {
   }
 })
 
+const shareLink = computed(_ => shareId.value.length === 0
+  ? ''
+  : `${window.location.href}${shareId.value}`
+)
+
 function handleRun () {
   runMutate({
+    input: code.value.split('\n')
+  })
+}
+
+function handleShare () {
+  shareMutate({
     input: code.value.split('\n')
   })
 }
@@ -101,7 +149,7 @@ function handleRun () {
     }
 
     .gp-playground-controls {
-
+      display: flex;
     }
   }
 
