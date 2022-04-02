@@ -26,6 +26,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useStack } from '../composables/stack'
 
 const props = defineProps({
   modelValue: {
@@ -40,7 +41,15 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+// textarea instance
+let textarea = undefined
+
 const scrollIndex = ref(0)
+
+const {
+  pop: undoPop,
+  push: undoPush
+} = useStack()
 
 const content = computed({
   get: _ => props.modelValue,
@@ -50,15 +59,41 @@ const content = computed({
 const lines = computed(() => content.value.split('\n').length)
 
 onMounted(() => {
-  const target = document.getElementById('gp-editor-target')
+  textarea = document.getElementById('gp-editor-target')
 
-  target.value = content.value
-  target.selectionEnd = 43
-  target.focus()
+  updateTextareaValue(content.value, 43)
+  textarea.focus()
+
+  document.onkeydown = (e) => {
+    // handle undo
+    if (e.metaKey && e.key === 'z') {
+      e.preventDefault()
+
+      undoChange()
+    }
+  }
 })
+
+function updateTextareaValue (value, index) {
+  textarea.value = value
+  textarea.selectionEnd = index
+}
+
+function undoChange () {
+  const previous = undoPop()
+  if (!previous) return
+
+  updateTextareaValue(previous.value, previous.index)
+  content.value = previous.value
+}
 
 function handleContentChange (e) {
   e.preventDefault()
+
+  undoPush({
+    value: content.value,
+    index: textarea.selectionEnd - 1
+  })
 
   content.value = e.target.value
 }
@@ -66,18 +101,25 @@ function handleContentChange (e) {
 function handleTab (e) {
   e.preventDefault()
 
-  const target = document.getElementById('gp-editor-target')
-  const currentValue = content.value
-  const startIndex = target.selectionStart
-  const endIndex = target.selectionEnd
+  undoPush({
+    value: textarea.value,
+    index: textarea.selectionEnd
+  })
 
-  target.value = content.value = currentValue.substring(0, startIndex) + '\t' + currentValue.substring(endIndex)
-  target.selectionEnd = endIndex + 1
+  const currentValue = content.value
+  const startIndex = textarea.selectionStart
+  const endIndex = textarea.selectionEnd
+  const newValue = currentValue.substring(0, startIndex) + '\t' + currentValue.substring(endIndex)
+
+  updateTextareaValue(
+    newValue,
+    endIndex + 1
+  )
+
+  content.value = newValue
 }
 
 function handleTextareaScroll () {
-  const textarea = document.getElementById('gp-editor-target')
-
   scrollIndex.value = textarea.scrollTop * -1
 }
 </script>
