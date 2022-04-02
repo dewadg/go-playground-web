@@ -4,6 +4,8 @@
 
 Frontend part of [Go Playground API](https://github.com/dewadg/go-playground-api).
 
+Basically just another Go playground that I build for learning purpose.
+
 ## How to run
 
 **Note: Run Go Playground API first!**
