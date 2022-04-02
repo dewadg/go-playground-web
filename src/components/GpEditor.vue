@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStack } from '../composables/stack'
 
 const props = defineProps({
@@ -47,13 +47,11 @@ let textarea = undefined
 const scrollIndex = ref(0)
 
 const {
-  state: undoHistory,
   pop: undoPop,
   push: undoPush
 } = useStack()
 
 const {
-  state: redoHistory,
   pop: redoPop,
   push: redoPush
 } = useStack()
@@ -65,10 +63,13 @@ const content = computed({
 
 const lines = computed(() => content.value.split('\n').length)
 
+watch(props, _ => {
+  textarea.value = props.modelValue
+  content.value = props.modelValue
+})
+
 onMounted(() => {
   textarea = document.getElementById('gp-editor-target')
-
-  updateTextareaValue(content.value, 43)
   textarea.focus()
 
   document.onkeydown = (e) => {

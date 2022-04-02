@@ -4,7 +4,20 @@
       <h2 class="gp-playground-title">Go Playground</h2>
       <div class="gp-playground-controls">
         <GpButton
-          :disabled="runLoading"
+          v-if="shareLink.length === 0"
+          :disabled="loading"
+          @click="handleShare"
+          style="margin-right: 0.5rem;"
+        >
+          Share
+        </GpButton>
+        <GpShareable
+          v-else
+          :link="shareLink"
+          style="margin-right: 0.5rem;"
+        />
+        <GpButton
+          :disabled="loading"
           @click="handleRun"
         >
           Run
@@ -13,30 +26,30 @@
     </div>
     <GpEditor
       v-model="code"
-      :disabled="runLoading"
+      :disabled="loading"
     />
     <GpTerminal :result="executionResult" />
   </section>
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import gql from 'graphql-tag'
-import { useMutation } from '@vue/apollo-composable'
+import { useMutation, useLazyQuery } from '@vue/apollo-composable'
 import GpEditor from './GpEditor.vue'
 import GpTerminal from './GpTerminal.vue'
 import GpButton from './GpButton.vue'
+import GpShareable from './GpShareable.vue'
 
-const code = ref(`package main
+const router = useRouter()
+const route = useRoute()
 
-import "fmt"
-
-func main() {
-	fmt.Println("Hello, world!")
-}
-`)
+const code = ref('')
 
 const executionOutput = reactive([])
+
+const shareId = ref('')
 
 const {
   loading: runLoading,
@@ -53,10 +66,53 @@ const {
   }
 `)
 
+const {
+  loading: shareLoading,
+  error: shareError,
+  mutate: shareMutate,
+  onDone: shareDone
+} = useMutation(gql`
+  mutation($input: [String!]!) {
+    createItem(payload: {
+      input: $input
+    }) {
+      shareId
+    }
+  }
+`)
+
+const {
+  result: itemResult,
+  loading: itemLoading,
+  error: itemError,
+  load: itemFetch
+} = useLazyQuery(gql`
+  query($id: ID!) {
+    item(id: $id) {
+      input
+    }
+  }
+`, () => ({
+  id: route.params.shareId
+}))
+
 runDone((result) => {
   executionOutput.length = 0
   executionOutput.push(...result.data.execute.output)
 })
+
+shareDone((result) => {
+  shareId.value = result.data.createItem.shareId
+
+  router.replace({
+    name: 'home',
+    params: {
+      shareId: result.data.createItem.shareId
+    }
+  })
+})
+
+const loading = computed(_ => runLoading.value || shareLoading.value || itemLoading.value)
 
 const executionResult = computed(_ => {
   if (runLoading.value) {
@@ -76,8 +132,42 @@ const executionResult = computed(_ => {
   }
 })
 
+const shareLink = computed(_ => shareId.value.length === 0
+  ? ''
+  : `${window.location.origin}/${shareId.value}`
+)
+
+watch(itemResult, (result) => {
+  if (itemLoading.value) return
+
+  code.value = result.item.input.join('\n')
+})
+
+onMounted(_ => {
+  if (route.params.shareId) {
+    itemFetch()
+
+    shareId.value = route.params.shareId
+  } else {
+    code.value = `package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`
+  }
+})
+
 function handleRun () {
   runMutate({
+    input: code.value.split('\n')
+  })
+}
+
+function handleShare () {
+  shareMutate({
     input: code.value.split('\n')
   })
 }
@@ -101,7 +191,7 @@ function handleRun () {
     }
 
     .gp-playground-controls {
-
+      display: flex;
     }
   }
 
