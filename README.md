@@ -1,7 +1,17 @@
-# Vue 3 + Vite
+# Go Playground Web
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+<img width="1624" alt="image" src="https://user-images.githubusercontent.com/3234011/161374165-db1c6e8d-4907-4362-b52e-e99d77fc00de.png">
 
-## Recommended IDE Setup
+Frontend part of [Go Playground API](https://github.com/dewadg/go-playground-api).
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+## How to run
+
+**Note: Run Go Playground API first!**
+
+Create new file `.env.local` by copying from `.env.example`. Set required variables in there.
+
+```
+npm i
+
+npm run dev
+```
