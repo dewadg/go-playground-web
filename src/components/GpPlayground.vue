@@ -45,14 +45,7 @@ import GpShareable from './GpShareable.vue'
 const router = useRouter()
 const route = useRoute()
 
-const code = ref(`package main
-
-import "fmt"
-
-func main() {
-	fmt.Println("Hello, world!")
-}
-`)
+const code = ref('')
 
 const executionOutput = reactive([])
 
@@ -155,6 +148,15 @@ onMounted(_ => {
     itemFetch()
 
     shareId.value = route.params.shareId
+  } else {
+    code.value = `package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`
   }
 })
 
