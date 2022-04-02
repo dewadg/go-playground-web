@@ -47,8 +47,15 @@ let textarea = undefined
 const scrollIndex = ref(0)
 
 const {
+  state: undoHistory,
   pop: undoPop,
   push: undoPush
+} = useStack()
+
+const {
+  state: redoHistory,
+  pop: redoPop,
+  push: redoPush
 } = useStack()
 
 const content = computed({
@@ -65,11 +72,18 @@ onMounted(() => {
   textarea.focus()
 
   document.onkeydown = (e) => {
+    // handle redo
+    if (e.metaKey && e.shiftKey && e.key === 'z') {
+      e.preventDefault()
+
+      return redoChange()
+    }
+
     // handle undo
     if (e.metaKey && e.key === 'z') {
       e.preventDefault()
 
-      undoChange()
+      return undoChange()
     }
   }
 })
@@ -83,6 +97,22 @@ function undoChange () {
   const previous = undoPop()
   if (!previous) return
 
+  redoPush({
+    value: content.value,
+    index: textarea.selectionEnd
+  })
+  updateTextareaValue(previous.value, previous.index)
+  content.value = previous.value
+}
+
+function redoChange () {
+  const previous = redoPop()
+  if (!previous) return
+
+  undoPush({
+    value: content.value,
+    index: textarea.selectionEnd
+  })
   updateTextareaValue(previous.value, previous.index)
   content.value = previous.value
 }
