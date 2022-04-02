@@ -33,13 +33,17 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import gql from 'graphql-tag'
-import { useMutation } from '@vue/apollo-composable'
+import { useMutation, useLazyQuery } from '@vue/apollo-composable'
 import GpEditor from './GpEditor.vue'
 import GpTerminal from './GpTerminal.vue'
 import GpButton from './GpButton.vue'
 import GpShareable from './GpShareable.vue'
+
+const router = useRouter()
+const route = useRoute()
 
 const code = ref(`package main
 
@@ -84,6 +88,21 @@ const {
   }
 `)
 
+const {
+  result: itemResult,
+  loading: itemLoading,
+  error: itemError,
+  load: itemFetch
+} = useLazyQuery(gql`
+  query($id: ID!) {
+    item(id: $id) {
+      input
+    }
+  }
+`, () => ({
+  id: route.params.shareId
+}))
+
 runDone((result) => {
   executionOutput.length = 0
   executionOutput.push(...result.data.execute.output)
@@ -91,9 +110,16 @@ runDone((result) => {
 
 shareDone((result) => {
   shareId.value = result.data.createItem.shareId
+
+  router.replace({
+    name: 'home',
+    params: {
+      shareId: result.data.createItem.shareId
+    }
+  })
 })
 
-const loading = computed(_ => runLoading.value || shareLoading.value)
+const loading = computed(_ => runLoading.value || shareLoading.value || itemLoading.value)
 
 const executionResult = computed(_ => {
   if (runLoading.value) {
@@ -117,6 +143,18 @@ const shareLink = computed(_ => shareId.value.length === 0
   ? ''
   : `${window.location.href}${shareId.value}`
 )
+
+watch(itemResult, (result) => {
+  if (itemLoading.value) return
+
+  code.value = result.item.input.join('\n')
+})
+
+onMounted(_ => {
+  if (route.params.shareId) {
+    itemFetch()
+  }
+})
 
 function handleRun () {
   runMutate({

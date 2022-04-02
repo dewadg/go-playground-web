@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStack } from '../composables/stack'
 
 const props = defineProps({
@@ -64,6 +64,11 @@ const content = computed({
 })
 
 const lines = computed(() => content.value.split('\n').length)
+
+watch(props, _ => {
+  updateTextareaValue(props.modelValue, 1)
+  content.value = props.modelValue
+})
 
 onMounted(() => {
   textarea = document.getElementById('gp-editor-target')

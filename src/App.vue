@@ -1,9 +1,9 @@
 <script setup>
-import GpPlayground from './components/GpPlayground.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <GpPlayground />
+  <RouterView />
 </template>
 
 <style>
