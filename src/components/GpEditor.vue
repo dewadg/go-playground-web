@@ -66,14 +66,12 @@ const content = computed({
 const lines = computed(() => content.value.split('\n').length)
 
 watch(props, _ => {
-  updateTextareaValue(props.modelValue, 1)
+  textarea.value = props.modelValue
   content.value = props.modelValue
 })
 
 onMounted(() => {
   textarea = document.getElementById('gp-editor-target')
-
-  updateTextareaValue(content.value, 43)
   textarea.focus()
 
   document.onkeydown = (e) => {
