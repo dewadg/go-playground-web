@@ -47,13 +47,11 @@ let textarea = undefined
 const scrollIndex = ref(0)
 
 const {
-  state: undoHistory,
   pop: undoPop,
   push: undoPush
 } = useStack()
 
 const {
-  state: redoHistory,
   pop: redoPop,
   push: redoPush
 } = useStack()
