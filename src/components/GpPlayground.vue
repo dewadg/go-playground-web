@@ -141,7 +141,7 @@ const executionResult = computed(_ => {
 
 const shareLink = computed(_ => shareId.value.length === 0
   ? ''
-  : `${window.location.href}${shareId.value}`
+  : `${window.location.origin}/${shareId.value}`
 )
 
 watch(itemResult, (result) => {
@@ -153,6 +153,8 @@ watch(itemResult, (result) => {
 onMounted(_ => {
   if (route.params.shareId) {
     itemFetch()
+
+    shareId.value = route.params.shareId
   }
 })
 
