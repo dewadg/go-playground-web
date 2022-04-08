@@ -68,11 +68,11 @@ watch(props, (value) => {
     return
   }
 
+  updateTextareaValue(value.modelValue, 0)
   setModel({
     value: value.modelValue,
     index: 0
   })
-  updateTextareaValue(value.modelValue, 0)
   isInit.value = true
 })
 
@@ -111,7 +111,9 @@ function undoChange () {
 }
 
 function redoChange () {
-  if (!redoModel())
+  if (!redoModel()) {
+    return
+  }
 
   updateTextareaValue(model.value.value, model.value.index)
 }
@@ -137,7 +139,6 @@ function handleTab (e) {
     newValue,
     endIndex + 1
   )
-
   setModel({
     value: newValue,
     index: endIndex + 1
