@@ -20,13 +20,14 @@
       @input="handleContentChange"
       @keydown.tab="handleTab"
       @scroll="handleTextareaScroll"
+      @click="handleTextareaClick"
     />
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useStack } from '../composables/stack'
+import { useRedoable } from '../composables/redoable'
 
 const props = defineProps({
   modelValue: {
@@ -44,28 +45,37 @@ const emit = defineEmits(['update:modelValue'])
 // textarea instance
 let textarea = undefined
 
+const isInit = ref(false)
 const scrollIndex = ref(0)
+const textareaIndex = ref(0)
 
 const {
-  pop: undoPop,
-  push: undoPush
-} = useStack()
-
-const {
-  pop: redoPop,
-  push: redoPush
-} = useStack()
-
-const content = computed({
-  get: _ => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  value: model,
+  setValue: setModel,
+  undo: undoModel,
+  redo: redoModel
+} = useRedoable({
+  value: '',
+  index: 0
 })
 
-const lines = computed(() => content.value.split('\n').length)
+const lines = computed(() => model.value.value.split('\n').length)
 
-watch(props, _ => {
-  textarea.value = props.modelValue
-  content.value = props.modelValue
+watch(model, _ => {
+  emit('update:modelValue', model.value.value)
+})
+
+watch(props, (value) => {
+  if (isInit.value) {
+    return
+  }
+
+  updateTextareaValue(value.modelValue, 0)
+  setModel({
+    value: value.modelValue,
+    index: 0
+  })
+  isInit.value = true
 })
 
 onMounted(() => {
@@ -95,63 +105,57 @@ function updateTextareaValue (value, index) {
 }
 
 function undoChange () {
-  const previous = undoPop()
-  if (!previous) return
+  if (!undoModel()) {
+    return
+  }
 
-  redoPush({
-    value: content.value,
-    index: textarea.selectionEnd
-  })
-  updateTextareaValue(previous.value, previous.index)
-  content.value = previous.value
+  updateTextareaValue(model.value.value, model.value.index)
 }
 
 function redoChange () {
-  const previous = redoPop()
-  if (!previous) return
+  if (!redoModel()) {
+    return
+  }
 
-  undoPush({
-    value: content.value,
-    index: textarea.selectionEnd
-  })
-  updateTextareaValue(previous.value, previous.index)
-  content.value = previous.value
+  updateTextareaValue(model.value.value, model.value.index)
 }
 
 function handleContentChange (e) {
   e.preventDefault()
 
-  undoPush({
-    value: content.value,
-    index: textarea.selectionEnd - 1
+  setModel({
+    value: e.target.value,
+    index: e.target.selectionEnd
   })
-
-  content.value = e.target.value
 }
 
 function handleTab (e) {
   e.preventDefault()
 
-  undoPush({
-    value: textarea.value,
-    index: textarea.selectionEnd
-  })
-
-  const currentValue = content.value
-  const startIndex = textarea.selectionStart
-  const endIndex = textarea.selectionEnd
+  const currentValue = model.value.value
+  const startIndex = e.target.selectionStart
+  const endIndex = e.target.selectionEnd
   const newValue = currentValue.substring(0, startIndex) + '\t' + currentValue.substring(endIndex)
 
   updateTextareaValue(
     newValue,
     endIndex + 1
   )
-
-  content.value = newValue
+  setModel({
+    value: newValue,
+    index: endIndex + 1
+  })
 }
 
 function handleTextareaScroll () {
   scrollIndex.value = textarea.scrollTop * -1
+}
+
+function handleTextareaClick (e) {
+  setModel({
+    value: model.value.value,
+    index: e.target.selectionEnd
+  })
 }
 </script>
 
