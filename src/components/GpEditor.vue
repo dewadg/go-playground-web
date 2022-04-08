@@ -45,9 +45,7 @@ const emit = defineEmits(['update:modelValue'])
 // textarea instance
 let textarea = undefined
 
-const isInit = ref(false)
 const scrollIndex = ref(0)
-const textareaIndex = ref(0)
 
 const {
   value: model,
@@ -61,21 +59,16 @@ const {
 
 const lines = computed(() => model.value.value.split('\n').length)
 
-watch(model, _ => {
-  emit('update:modelValue', model.value.value)
-})
-
-watch(props, (value) => {
-  if (isInit.value) {
+watch(props, (newVal, oldVal) => {
+  if (newVal.modelValue !== oldVal.modelValue) {
     return
   }
 
-  updateTextareaValue(value.modelValue, 0)
+  updateTextareaValue(newVal.modelValue, model.value.index)
   setModel({
-    value: value.modelValue,
-    index: 0
-  })
-  isInit.value = true
+    value: newVal.modelValue,
+    index: model.value.index
+  }, false)
 })
 
 onMounted(() => {
@@ -110,6 +103,7 @@ function undoChange () {
   }
 
   updateTextareaValue(model.value.value, model.value.index)
+  emitUpdate(model.value.value)
 }
 
 function redoChange () {
@@ -118,6 +112,11 @@ function redoChange () {
   }
 
   updateTextareaValue(model.value.value, model.value.index)
+  emitUpdate(model.value.value)
+}
+
+function emitUpdate (value) {
+  emit('update:modelValue', value)
 }
 
 function handleContentChange (e) {
@@ -127,6 +126,7 @@ function handleContentChange (e) {
     value: e.target.value,
     index: e.target.selectionEnd
   })
+  emitUpdate(model.value.value)
 }
 
 function handleTab (e) {
@@ -145,6 +145,7 @@ function handleTab (e) {
     value: newValue,
     index: endIndex + 1
   })
+  emitUpdate(model.value.value)
 }
 
 function handleTextareaScroll () {
