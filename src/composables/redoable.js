@@ -7,8 +7,11 @@ export function useRedoable (initial) {
 
   const currentValue = computed(() => state.value)
 
-  function setValue (value) {
-    undoHist.unshift(state.value)
+  function setValue (value, updateHist = true) {
+    if (updateHist) {
+      undoHist.unshift(state.value)
+    }
+
     state.value = value
   }
 
