@@ -20,6 +20,7 @@
       @input="handleContentChange"
       @keydown.tab="handleTab"
       @scroll="handleTextareaScroll"
+      @click="handleTextareaClick"
     />
   </div>
 </template>
@@ -46,6 +47,7 @@ let textarea = undefined
 
 const isInit = ref(false)
 const scrollIndex = ref(0)
+const textareaIndex = ref(0)
 
 const {
   value: model,
@@ -123,7 +125,7 @@ function handleContentChange (e) {
 
   setModel({
     value: e.target.value,
-    index: textarea.selectionEnd
+    index: e.target.selectionEnd
   })
 }
 
@@ -131,8 +133,8 @@ function handleTab (e) {
   e.preventDefault()
 
   const currentValue = model.value.value
-  const startIndex = textarea.selectionStart
-  const endIndex = textarea.selectionEnd
+  const startIndex = e.target.selectionStart
+  const endIndex = e.target.selectionEnd
   const newValue = currentValue.substring(0, startIndex) + '\t' + currentValue.substring(endIndex)
 
   updateTextareaValue(
@@ -147,6 +149,13 @@ function handleTab (e) {
 
 function handleTextareaScroll () {
   scrollIndex.value = textarea.scrollTop * -1
+}
+
+function handleTextareaClick (e) {
+  setModel({
+    value: model.value.value,
+    index: e.target.selectionEnd
+  })
 }
 </script>
 
