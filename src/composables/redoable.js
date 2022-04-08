@@ -14,20 +14,24 @@ export function useRedoable (initial) {
 
   function undo () {
     if (undoHist.length === 0) {
-      return
+      return false
     }
 
     redoHist.unshift(state.value)
     state.value = undoHist.shift()
+
+    return true
   }
 
   function redo () {
     if (redoHist.length === 0) {
-      return
+      return false
     }
 
     undoHist.unshift(state.value)
     state.value = redoHist.shift()
+
+    return true
   }
 
   return {
