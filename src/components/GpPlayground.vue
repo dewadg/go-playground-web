@@ -132,6 +132,7 @@ runDone((result) => {
 
 shareDone((result) => {
   shareId.value = result.data.createItem.shareId
+  isSharedLink.value = true
 
   router.replace({
     name: 'home',
