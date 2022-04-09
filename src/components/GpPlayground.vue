@@ -18,6 +18,13 @@
         />
         <GpButton
           :disabled="loading"
+          @click="handleUpdateCode"
+          style="margin-right: 0.5rem;"
+        >
+          Update Code
+        </GpButton>
+        <GpButton
+          :disabled="loading"
           @click="handleRun"
         >
           Run
@@ -28,6 +35,7 @@
       v-model="code"
       :disabled="loading"
     />
+    <GpErrorAlert :error="error" />
     <GpTerminal :result="executionResult" />
   </section>
 </template>
@@ -41,6 +49,7 @@ import GpEditor from './GpEditor.vue'
 import GpTerminal from './GpTerminal.vue'
 import GpButton from './GpButton.vue'
 import GpShareable from './GpShareable.vue'
+import GpErrorAlert from './GpErrorAlert.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -50,6 +59,7 @@ const code = ref('')
 const executionOutput = reactive([])
 
 const shareId = ref('')
+const isSharedLink = ref(false)
 
 const {
   loading: runLoading,
@@ -96,6 +106,24 @@ const {
   id: route.params.shareId
 }))
 
+const {
+  loading: updateLoading,
+  error: updateError,
+  mutate: updateMutate
+} = useMutation(gql`
+  mutation($shareId: ID!, $input: [String!]!) {
+    updateItem(
+      shareId: $shareId,
+      payload: {
+        input: $input
+      }
+    ) {
+      id
+      input
+    }
+  }
+`)
+
 runDone((result) => {
   executionOutput.length = 0
   executionOutput.push(...result.data.execute.output)
@@ -112,7 +140,8 @@ shareDone((result) => {
   })
 })
 
-const loading = computed(_ => runLoading.value || shareLoading.value || itemLoading.value)
+const loading = computed(_ => runLoading.value || shareLoading.value || itemLoading.value || updateLoading.value)
+const error = computed(_ => runError.value || shareError.value || itemError.value || updateError.value)
 
 const executionResult = computed(_ => {
   if (runLoading.value) {
@@ -148,6 +177,7 @@ onMounted(_ => {
     itemFetch()
 
     shareId.value = route.params.shareId
+    isSharedLink.value = true
   } else {
     code.value = `package main
 
@@ -168,6 +198,13 @@ function handleRun () {
 
 function handleShare () {
   shareMutate({
+    input: code.value.split('\n')
+  })
+}
+
+function handleUpdateCode () {
+  updateMutate({
+    shareId: shareId.value,
     input: code.value.split('\n')
   })
 }
