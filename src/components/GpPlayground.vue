@@ -17,6 +17,7 @@
           style="margin-right: 0.5rem;"
         />
         <GpButton
+          v-if="isSharedLink"
           :disabled="loading"
           @click="handleUpdateCode"
           style="margin-right: 0.5rem;"
