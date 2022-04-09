@@ -3,6 +3,7 @@
     <input
       type="url"
       :value="link"
+      readonly
     >
     <button @click="handleCopy">
       Copy
