@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="isShown"
+    v-if="error && isShown"
     class="gp-error-alert"
   >
     <span>{{ error && error.message }}</span>
