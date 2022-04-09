@@ -30,10 +30,9 @@ function handleCopy () {
   font-family: 'Patrick Hand', sans-serif;
 
   input {
-    min-width: 180px;
+    width: 220px;
     background: #efefef;
     height: 100%;
-    border: 0;
     outline: 0;
     font-size: 13px;
     font-family: inherit;
@@ -41,7 +40,6 @@ function handleCopy () {
     border-bottom: 2px solid #888;
     border-right: 0;
     margin: 0;
-    padding: 0;
     box-sizing: border-box;
     border-top-left-radius: 0.5rem;
     border-bottom-left-radius: 0.5rem;
