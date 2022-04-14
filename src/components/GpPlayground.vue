@@ -186,7 +186,9 @@ watch(itemResult, (result) => {
 })
 
 watch(code, () => {
-  executionErrorLines.length = 0
+  if (executionErrorLines.length > 0) {
+    executionErrorLines.length = 0
+  }
 })
 
 onMounted(_ => {
