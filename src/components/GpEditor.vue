@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, reactive, ref, watch} from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRedoable } from '../composables/redoable'
 
 const props = defineProps({

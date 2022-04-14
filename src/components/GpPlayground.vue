@@ -137,7 +137,7 @@ runDone((result) => {
   executionOutput.push(...result.data.execute.output)
 
   executionErrorLines.length = 0
-  executionErrorLines.push(...result.data.execute.errorLines)
+  executionErrorLines.push(...(result.data.execute.errorLines || []))
 })
 
 shareDone((result) => {
@@ -183,6 +183,10 @@ watch(itemResult, (result) => {
   if (itemLoading.value) return
 
   code.value = result.item.input.join('\n')
+})
+
+watch(code, () => {
+  executionErrorLines.length = 0
 })
 
 onMounted(_ => {
