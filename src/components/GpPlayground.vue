@@ -35,6 +35,7 @@
     <GpEditor
       v-model="code"
       :disabled="loading"
+      :error-lines="executionErrorLines"
     />
     <GpErrorAlert :error="error" />
     <GpTerminal :result="executionResult" />
@@ -58,6 +59,7 @@ const route = useRoute()
 const code = ref('')
 
 const executionOutput = reactive([])
+const executionErrorLines = reactive([])
 
 const shareId = ref('')
 const isSharedLink = ref(false)
@@ -73,6 +75,11 @@ const {
       input: $input
     }) {
       output
+      errorLines {
+        line
+        column
+        message
+      }
     }
   }
 `)
@@ -128,6 +135,9 @@ const {
 runDone((result) => {
   executionOutput.length = 0
   executionOutput.push(...result.data.execute.output)
+
+  executionErrorLines.length = 0
+  executionErrorLines.push(...result.data.execute.errorLines)
 })
 
 shareDone((result) => {
@@ -150,7 +160,8 @@ const executionResult = computed(_ => {
     return {
       error: null,
       loading: true,
-      output: []
+      output: [],
+      errorLines: []
     }
   }
 

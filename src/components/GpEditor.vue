@@ -8,10 +8,14 @@
       }"
     >
       <span
-        v-for="i in lines"
-        :key="i"
+        v-for="line in lines"
+        :key="line.line"
+        :class="{
+          'error': line.errorMessage
+        }"
+        :title="line.errorMessage"
       >
-        {{ i }}
+        {{ line.line }}
       </span>
     </div>
     <textarea
@@ -26,7 +30,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import {computed, onMounted, reactive, ref, watch} from 'vue'
 import { useRedoable } from '../composables/redoable'
 
 const props = defineProps({
@@ -37,6 +41,10 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+  errorLines: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -57,7 +65,26 @@ const {
   index: 0
 })
 
-const lines = computed(() => model.value.value.split('\n').length)
+const errorLineMap = computed(() =>
+  props.errorLines.reduce((carry, item) => carry.set(item.line, item), new Map())
+)
+
+const lines = computed(() => {
+  const output = []
+
+  console.log(errorLineMap.value.has(2))
+
+  for (let i = 0; i < model.value.value.split('\n').length; i++) {
+    output.push({
+      line: i + 1,
+      errorMessage: errorLineMap.value.has(i + 1)
+        ? errorLineMap.value.get(i + 1).message
+        : ''
+    })
+  }
+
+  return output
+})
 
 watch(props, (newVal, oldVal) => {
   if (newVal.modelValue !== oldVal.modelValue) {
@@ -181,7 +208,15 @@ function handleTextareaClick (e) {
     color: #444;
 
     span {
+      display: block;
       padding: 0 1rem;
+      cursor: pointer;
+      box-sizing: border-box;
+      border-right: 5px solid transparent;
+
+      &.error {
+        border-right: 5px solid #e74c3c;
+      }
     }
   }
 
