@@ -20,7 +20,6 @@
     </div>
     <textarea
       id="gp-editor-target"
-      :disabled="disabled"
       @input="handleContentChange"
       @keydown.tab="handleTab"
       @scroll="handleTextareaScroll"
