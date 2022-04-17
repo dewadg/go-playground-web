@@ -1,7 +1,9 @@
 <template>
   <section class="gp-playground">
     <div class="gp-playground-header">
-      <h2 class="gp-playground-title">Go Playground</h2>
+      <router-link :to="{ name: 'home' }">
+        <h1 class="gp-playground-title">Go Playground</h1>
+      </router-link>
       <div class="gp-playground-controls">
         <GpButton
           v-if="shareLink.length === 0"
@@ -238,6 +240,11 @@ function handleUpdateCode () {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
     .gp-playground-title {
       margin: 0 0 1rem 0;
