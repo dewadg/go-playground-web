@@ -23,12 +23,14 @@
           :disabled="loading"
           @click="handleUpdateCode"
           style="margin-right: 0.5rem;"
+          title="Ctrl/Cmd + S"
         >
           Update Code
         </GpButton>
         <GpButton
           :disabled="loading"
           @click="handleRun"
+          title="Ctrl/Cmd + Enter"
         >
           Run
         </GpButton>
@@ -38,6 +40,7 @@
       v-model="code"
       :disabled="loading"
       :error-lines="executionErrorLines"
+      @enter="handleRun()"
     />
     <GpErrorAlert :error="error" />
     <GpTerminal :result="executionResult" />
@@ -141,8 +144,10 @@ runDone((result) => {
   executionOutput.length = 0
   executionOutput.push(...result.data.execute.output)
 
-  executionErrorLines.length = 0
-  executionErrorLines.push(...(result.data.execute.errorLines || []))
+  if (Array.isArray(result.data.execute.errorLines) && result.data.execute.errorLines.length > 0) {
+    executionErrorLines.length = 0
+    executionErrorLines.push(...(result.data.execute.errorLines || []))
+  }
 })
 
 shareDone((result) => {
@@ -211,6 +216,20 @@ func main() {
 	fmt.Println("Hello, world!")
 }
 `
+  }
+
+  document.onkeydown = (e) => {
+    if (e.metaKey && e.key === 'Enter') {
+      e.preventDefault()
+
+      return handleRun()
+    }
+
+    if (e.metaKey && e.key === 's' && isSharedLink.value) {
+      e.preventDefault()
+
+      return handleUpdateCode()
+    }
   }
 })
 

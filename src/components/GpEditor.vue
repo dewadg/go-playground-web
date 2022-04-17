@@ -72,8 +72,6 @@ const errorLineMap = computed(() =>
 const lines = computed(() => {
   const output = []
 
-  console.log(errorLineMap.value.has(2))
-
   for (let i = 0; i < model.value.value.split('\n').length; i++) {
     output.push({
       line: i + 1,
