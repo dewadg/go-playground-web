@@ -41,6 +41,9 @@
     />
     <GpErrorAlert :error="error" />
     <GpTerminal :result="executionResult" />
+    <p class="copyright">
+      Crafted by <a href="https://dewadg.id">dewadg</a>
+    </p>
   </section>
 </template>
 
@@ -260,6 +263,15 @@ function handleUpdateCode () {
 
   .gp-editor {
     margin-bottom: 1rem;
+  }
+
+  .copyright {
+    text-align: center;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
   }
 }
 </style>
