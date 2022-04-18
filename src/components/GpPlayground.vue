@@ -88,6 +88,7 @@ const {
         column
         message
       }
+      duration
     }
   }
 `)
@@ -142,7 +143,11 @@ const {
 
 runDone((result) => {
   executionOutput.length = 0
-  executionOutput.push(...result.data.execute.output)
+  executionOutput.push(
+    ...result.data.execute.output,
+    '',
+    `Completed after ${result.data.execute.duration}ms`
+  )
 
   if (Array.isArray(result.data.execute.errorLines) && result.data.execute.errorLines.length > 0) {
     executionErrorLines.length = 0
