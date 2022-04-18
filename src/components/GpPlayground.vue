@@ -45,7 +45,8 @@
     <GpErrorAlert :error="error" />
     <GpTerminal :result="executionResult" />
     <p class="copyright">
-      Crafted by <a href="https://dewadg.id">dewadg</a>
+      Crafted by <a href="https://dewadg.id">dewadg</a><br>
+      v{{ pkg.version }}
     </p>
   </section>
 </template>
@@ -60,6 +61,7 @@ import GpTerminal from './GpTerminal.vue'
 import GpButton from './GpButton.vue'
 import GpShareable from './GpShareable.vue'
 import GpErrorAlert from './GpErrorAlert.vue'
+import pkg from '../../package.json'
 
 const router = useRouter()
 const route = useRoute()
