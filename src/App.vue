@@ -9,6 +9,12 @@ import { RouterView } from 'vue-router'
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
 
+html,
+body,
+#app {
+  height: 100%;
+}
+
 body {
   margin: 0;
   font-family: 'Patrick Hand', sans-serif;

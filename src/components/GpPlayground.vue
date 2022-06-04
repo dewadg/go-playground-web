@@ -1,39 +1,47 @@
 <template>
   <section class="gp-playground">
     <div class="gp-playground-header">
-      <router-link :to="{ name: 'home' }">
-        <h1 class="gp-playground-title">Go Playground</h1>
-      </router-link>
-      <div class="gp-playground-controls">
-        <GpButton
-          v-if="shareLink.length === 0"
-          :disabled="loading"
-          @click="handleShare"
-          style="margin-right: 0.5rem;"
-        >
-          Share
-        </GpButton>
-        <GpShareable
-          v-else
-          :link="shareLink"
-          style="margin-right: 0.5rem;"
-        />
-        <GpButton
-          v-if="isSharedLink"
-          :disabled="loading"
-          @click="handleUpdateCode"
-          style="margin-right: 0.5rem;"
-          title="Ctrl/Cmd + S"
-        >
-          Update Code
-        </GpButton>
-        <GpButton
-          :disabled="loading"
-          @click="handleRun"
-          title="Ctrl/Cmd + Enter"
-        >
-          Run
-        </GpButton>
+     <GpLogo />
+      <div>
+        <div class="gp-playground-user">
+          <span v-if="whoamiLoading">
+            Loading...
+          </span>
+          <span v-if="!whoamiLoading && !whoamiError">
+            {{ whoamiResult.whoami.email }}
+          </span>
+        </div>
+        <div class="gp-playground-controls">
+          <GpButton
+            v-if="shareLink.length === 0"
+            :disabled="loading"
+            @click="handleShare"
+            style="margin-right: 0.5rem;"
+          >
+            Share
+          </GpButton>
+          <GpShareable
+            v-else
+            :link="shareLink"
+            style="margin-right: 0.5rem;"
+          />
+          <GpButton
+            v-if="isSharedLink"
+            :disabled="loading"
+            @click="handleUpdateCode"
+            style="margin-right: 0.5rem;"
+            title="Ctrl/Cmd + S"
+          >
+            Update Code
+          </GpButton>
+          <GpButton
+            :disabled="loading"
+            @click="handleRun"
+            title="Ctrl/Cmd + Enter"
+          >
+            Run
+          </GpButton>
+        </div>
       </div>
     </div>
     <GpEditor
@@ -56,6 +64,8 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import gql from 'graphql-tag'
 import { useMutation, useLazyQuery } from '@vue/apollo-composable'
+import { useWhoami } from '../composables/auth'
+import GpLogo from './GpLogo.vue'
 import GpEditor from './GpEditor.vue'
 import GpTerminal from './GpTerminal.vue'
 import GpButton from './GpButton.vue'
@@ -142,6 +152,12 @@ const {
     }
   }
 `)
+
+const {
+  loading: whoamiLoading,
+  result: whoamiResult,
+  error: whoamiError
+} = useWhoami()
 
 runDone((result) => {
   executionOutput.length = 0
@@ -275,15 +291,14 @@ function handleUpdateCode () {
       text-decoration: none;
     }
 
-    .gp-playground-title {
-      margin: 0 0 1rem 0;
-      padding: 0.5rem 0 0 0;
-      font-weight: normal;
-      font-size: 2rem;
+    .gp-playground-user {
+      padding: .5rem 0;
+      text-align: right;
     }
 
     .gp-playground-controls {
       display: flex;
+      margin-bottom: .5rem;
     }
   }
 
