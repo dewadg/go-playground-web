@@ -7,7 +7,7 @@
       :class="{
         'center': textAlign === 'center'
       }"
-    >Go Playground</h1>
+    >Code Playground</h1>
   </router-link>
 </template>
 
