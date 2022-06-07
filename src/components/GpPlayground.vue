@@ -225,7 +225,7 @@ func main() {
 `
   }
 
-  document.onkeydown = (e) => {
+  document.addEventListener('keydown', (e) => {
     if (e.metaKey && e.key === 'Enter') {
       e.preventDefault()
 
@@ -237,7 +237,7 @@ func main() {
 
       return handleUpdateCode()
     }
-  }
+  })
 })
 
 function handleRun () {

@@ -99,7 +99,7 @@ onMounted(() => {
   textarea = document.getElementById('gp-editor-target')
   textarea.focus()
 
-  document.onkeydown = (e) => {
+  document.addEventListener('keydown', (e) => {
     // handle redo
     if (e.metaKey && e.shiftKey && e.key === 'z') {
       e.preventDefault()
@@ -113,7 +113,7 @@ onMounted(() => {
 
       return undoChange()
     }
-  }
+  })
 })
 
 function updateTextareaValue (value, index) {
