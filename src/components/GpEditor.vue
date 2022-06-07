@@ -157,17 +157,32 @@ function handleTab (e) {
   e.preventDefault()
 
   const currentValue = model.value.value
-  const startIndex = e.target.selectionStart
-  const endIndex = e.target.selectionEnd
-  const newValue = currentValue.substring(0, startIndex) + '\t' + currentValue.substring(endIndex)
+  const currentValueInSelection = currentValue.substring(e.target.selectionStart, e.target.selectionEnd)
+  const isSelection = e.target.selectionStart < e.target.selectionEnd
+
+  let newValue = ''
+  let textareaIndex = 0
+
+  if (!isSelection) {
+    textareaIndex = e.target.selectionEnd
+    newValue = currentValue.substring(0, e.target.selectionStart) + '\t' + currentValue.substring(textareaIndex)
+  } else {
+    const updatedSelection = currentValueInSelection
+      .split('\n')
+      .map(item => `\t${item}`)
+      .join('\n')
+
+    textareaIndex = e.target.selectionStart
+    newValue = currentValue.substring(0, e.target.selectionStart) + updatedSelection + currentValue.substring(e.target.selectionEnd)
+  }
 
   updateTextareaValue(
     newValue,
-    endIndex + 1
+    textareaIndex + 1
   )
   setModel({
     value: newValue,
-    index: endIndex + 1
+    index: textareaIndex + 1
   })
   emitUpdate(model.value.value)
 }
