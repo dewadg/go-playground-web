@@ -100,6 +100,14 @@ onMounted(() => {
   textarea.focus()
 
   document.addEventListener('keydown', (e) => {
+    // update caret position when moved by arrow keys
+    if (e.code.startsWith('Arrow')) {
+      setModel({
+        value: model.value.value,
+        index: textarea.selectionStart
+      })
+    }
+
     // handle redo
     if (e.metaKey && e.shiftKey && e.key === 'z') {
       e.preventDefault()
