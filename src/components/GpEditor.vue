@@ -192,10 +192,9 @@ function handleTextareaScroll () {
 }
 
 function handleTextareaClick (e) {
-  let index = e.target.selectionEnd
-  if (e.target.selectionStart < e.target.selectionEnd) {
-    index = e.target.selectionStart
-  }
+  const index = e.target.selectionStart < e.target.selectionEnd
+    ? e.target.selectionStart
+    : e.target.selectionEnd
 
   setModel({
     value: model.value.value,
