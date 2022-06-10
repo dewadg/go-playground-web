@@ -166,10 +166,10 @@ function handleTab (e) {
 
   const currentValue = model.value.value
   const currentValueInSelection = currentValue.substring(e.target.selectionStart, e.target.selectionEnd)
-  const isSelection = e.target.selectionStart < e.target.selectionEnd
+  const isSelection = e.target.selectionStart !== e.target.selectionEnd
 
-  let newValue = ''
-  let textareaIndex = 0
+  let newValue
+  let textareaIndex
 
   if (!isSelection) {
     textareaIndex = e.target.selectionEnd
@@ -177,11 +177,14 @@ function handleTab (e) {
   } else {
     const updatedSelection = currentValueInSelection
       .split('\n')
-      .map(item => `\t${item}`)
+      .map(item => item.length > 0 ? `\t${item}` : item)
       .join('\n')
 
-    textareaIndex = e.target.selectionStart
     newValue = currentValue.substring(0, e.target.selectionStart) + updatedSelection + currentValue.substring(e.target.selectionEnd)
+    textareaIndex = e.target.selectionEnd + 2
+    if (newValue[textareaIndex] === '\n') {
+      textareaIndex--
+    }
   }
 
   updateTextareaValue(
@@ -200,13 +203,11 @@ function handleTextareaScroll () {
 }
 
 function handleTextareaClick (e) {
-  const index = e.target.selectionStart < e.target.selectionEnd
-    ? e.target.selectionStart
-    : e.target.selectionEnd
+  e.preventDefault()
 
   setModel({
     value: model.value.value,
-    index
+    index: e.target.selectionEnd
   })
 }
 </script>
